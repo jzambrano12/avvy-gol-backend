@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import entities from './entities';
 
 // Config Imports
-import config from './config/configuration';
+import configuration from './config/configuration';
 import { environments } from './config/environments';
 import { validationSchema } from './config/validation';
 
@@ -17,7 +17,7 @@ import { WhitelistModule } from './modules/whitelist/whitelist.module';
     ConfigModule.forRoot({
       envFilePath: environments[process.env.NODE_ENV] || '.env',
       isGlobal: true,
-      load: [config],
+      load: [configuration],
       validationSchema,
     }),
     TypeOrmModule.forRootAsync({
