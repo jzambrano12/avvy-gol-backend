@@ -9,7 +9,7 @@ import { environments } from './config/environments';
 import { validationSchema } from './config/validation';
 
 // Modules
-import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { WhitelistModule } from './modules/whitelist/whitelist.module';
 
 @Module({
@@ -34,8 +34,8 @@ import { WhitelistModule } from './modules/whitelist/whitelist.module';
       }),
       inject: [ConfigService],
     }),
-    UsersModule,
     WhitelistModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

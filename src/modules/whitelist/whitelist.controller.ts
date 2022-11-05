@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { WhitelistEntity } from 'src/entities';
 import { AddUserToWhitelistDto } from './dtos/whitelist.dto';
 import { WhitelistService } from './whitelist.service';
@@ -7,10 +7,15 @@ import { WhitelistService } from './whitelist.service';
 export class WhitelistController {
   constructor(private readonly whitelistService: WhitelistService) {}
 
-  @Post('/add')
+  @Post('add')
   addUserToWhitelist(
     @Body() addUserToWhitelistDto: AddUserToWhitelistDto,
   ): Promise<WhitelistEntity> {
     return this.whitelistService.addUserToWhitelist(addUserToWhitelistDto);
+  }
+
+  @Get('/verify/:user_id')
+  verifyUser(@Param() { user_id }: AddUserToWhitelistDto) {
+    return this.whitelistService.verifyUser({ user_id });
   }
 }

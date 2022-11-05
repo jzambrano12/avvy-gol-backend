@@ -14,4 +14,7 @@ export class UserEntity extends BaseEntity {
 
   @Column({ default: 0 })
   points: number;
+
+  @Column({ nullable: true })
+  refreshToken: string;
 }

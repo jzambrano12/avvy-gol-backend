@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WhitelistEntity } from '../../entities';
@@ -19,29 +19,16 @@ export class WhitelistService {
     try {
       return await this.whiteListRepository.save(data);
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: error.detail,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new NotFoundException(error.detail);
     }
   }
 
-  async verifyUser(
-    addUserToWhitelistDto: AddUserToWhitelistDto,
-  ): Promise<WhitelistEntity> {
-    const { user_id } = addUserToWhitelistDto;
+  async verifyUser({
+    user_id,
+  }: AddUserToWhitelistDto): Promise<WhitelistEntity> {
     const user = await this.whiteListRepository.findOne({ where: { user_id } });
     if (!user) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'User does not exist in the Whitelist',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new NotFoundException('User does not exist in the Whitelist');
     }
 
     return user;
