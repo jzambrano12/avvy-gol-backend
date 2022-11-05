@@ -10,6 +10,7 @@ import { validationSchema } from './config/validation';
 
 // Modules
 import { AuthModule } from './modules/auth/auth.module';
+import { GamesModule } from './modules/games/games.module';
 import { WhitelistModule } from './modules/whitelist/whitelist.module';
 
 @Module({
@@ -36,6 +37,7 @@ import { WhitelistModule } from './modules/whitelist/whitelist.module';
     }),
     WhitelistModule,
     AuthModule,
+    GamesModule,
   ],
   controllers: [],
   providers: [],
