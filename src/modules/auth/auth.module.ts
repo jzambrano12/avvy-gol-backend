@@ -12,6 +12,9 @@ import { AuthService } from './auth.service';
 import { AccessTokenStrategy } from './jwt/accessToken.strategy';
 import { RefreshTokenStrategy } from './jwt/refreshToken.strategy';
 
+// Services
+import { SendgridService } from './sendgrid.service';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserEntity, WhitelistEntity]),
@@ -30,6 +33,7 @@ import { RefreshTokenStrategy } from './jwt/refreshToken.strategy';
     AccessTokenStrategy,
     RefreshTokenStrategy,
     ConfigService,
+    SendgridService,
   ],
 })
 export class AuthModule {}

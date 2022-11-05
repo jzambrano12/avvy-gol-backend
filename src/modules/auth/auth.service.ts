@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { WhitelistService } from '../whitelist/whitelist.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { JwtPayload } from './jwt/payload';
+import { SendgridService } from './sendgrid.service';
 
 @Injectable()
 export class AuthService {
@@ -16,12 +17,11 @@ export class AuthService {
     private readonly userRepository: Repository<UserEntity>,
     private readonly whitelistService: WhitelistService,
     private readonly configService: ConfigService,
+    private readonly sendgridService: SendgridService,
     private jwtService: JwtService,
   ) {}
 
-  async signIn(
-    email: string,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async signIn(email: string) {
     const user = await this.userRepository.findOne({ where: { email } });
 
     if (!user) {
@@ -33,11 +33,20 @@ export class AuthService {
       user_id: user.id.toString(),
     });
 
+    // Refreshing tokens
     const payload: JwtPayload = { email };
     const tokens = await this.getTokens(payload);
     await this.updateRefreshToken(email, tokens.refreshToken);
 
-    return tokens;
+    const mail = {
+      to: email,
+      subject: 'Greeting Message from NestJS Sendgrid',
+      from: 'jorge.zambrano+support@avvy.co',
+      text: 'Hello World from NestJS Sendgrid',
+      html: `<h1>Here is the link to Log in into Avvygol <a href="https://localhost:3001/signin?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}" target="_blank">Link here</a></h1>`,
+    };
+
+    await this.sendgridService.send(mail);
   }
 
   async signUp(createUserDto: CreateUserDto) {
@@ -53,7 +62,6 @@ export class AuthService {
 
     try {
       await this.userRepository.save(user);
-      return tokens;
     } catch (error) {
       throw new NotFoundException(error.detail);
     }
@@ -76,6 +84,7 @@ export class AuthService {
     throw new NotFoundException('User is not exist');
   }
 
+  // Tokens functions
   async getTokens(payload: { email: string }) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {

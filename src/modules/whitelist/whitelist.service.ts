@@ -27,6 +27,7 @@ export class WhitelistService {
     user_id,
   }: AddUserToWhitelistDto): Promise<WhitelistEntity> {
     const user = await this.whiteListRepository.findOne({ where: { user_id } });
+    console.log({ user_id });
     if (!user) {
       throw new NotFoundException('User does not exist in the Whitelist');
     }
