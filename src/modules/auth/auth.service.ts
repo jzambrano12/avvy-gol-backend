@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -28,25 +32,32 @@ export class AuthService {
       throw new NotFoundException("Email doesn't exist");
     }
 
-    // Verify if user exist in the whitelist
-    await this.whitelistService.verifyUser({
-      user_id: user.id.toString(),
-    });
+    try {
+      // Verify if user exist in the whitelist
+      await this.whitelistService.verifyUser({
+        user_id: user.id.toString(),
+      });
 
-    // Refreshing tokens
-    const payload: JwtPayload = { email };
-    const tokens = await this.getTokens(payload);
-    await this.updateRefreshToken(email, tokens.refreshToken);
+      // Refreshing tokens
+      const payload: JwtPayload = { email };
+      const tokens = await this.getTokens(payload);
+      await this.updateRefreshToken(email, tokens.refreshToken);
 
-    const mail = {
-      to: email,
-      subject: 'Greeting Message from NestJS Sendgrid',
-      from: 'jorge.zambrano+support@avvy.co',
-      text: 'Hello World from NestJS Sendgrid',
-      html: `<h1>Here is the link to Log in into Avvygol <a href="https://localhost:3001/signin?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}" target="_blank">Link here</a></h1>`,
-    };
+      const mail = {
+        to: email,
+        from: 'jorge.zambrano+support@avvy.co',
+        templateId: 'd-4915327d2c3b4e8198196d38bece37fd',
+        dynamic_template_data: {
+          url: `http://localhost:3001/?userId=${user.id}&accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`,
+        },
+      };
 
-    await this.sendgridService.send(mail);
+      // Send email
+      await this.sendgridService.send(mail);
+    } catch (error) {
+      console.error({ error });
+      throw new InternalServerErrorException();
+    }
   }
 
   async signUp(createUserDto: CreateUserDto) {
